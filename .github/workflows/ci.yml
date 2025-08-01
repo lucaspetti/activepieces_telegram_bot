@@ -25,7 +25,7 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    # - name: Build docker image
-    #   run: docker build -t activepieces_telegram_bot .
-    # - name: Push image to Dockerhub
-    #   run: docker push activepieces_telegram_bot:latest
+    - name: Build docker image
+      run: docker build -t activepieces_telegram_bot .
+    - name: Push image to Dockerhub
+      run: docker push activepieces_telegram_bot:latest
