@@ -21,7 +21,10 @@ jobs:
     - name: Test
       run: go test -v ./...
     - name: Dockerhub login
-      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     # - name: Build docker image
     #   run: docker build -t activepieces_telegram_bot .
     # - name: Push image to Dockerhub
