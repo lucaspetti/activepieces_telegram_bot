@@ -20,8 +20,8 @@ jobs:
         go-version: '1.24.5'
     - name: Test
       run: go test -v ./...
-    # - name: Dockerhub login
-    #   run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    - name: Dockerhub login
+      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     # - name: Build docker image
     #   run: docker build -t activepieces_telegram_bot .
     # - name: Push image to Dockerhub
