@@ -45,7 +45,7 @@ func init() {
 func initConfig() {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatalf("Warning: .env file not found or could not be loaded: %v", err)
+		log.Printf("Warning: .env file not found or could not be loaded: %v", err)
 	}
 
 	if cfgFile != "" {
