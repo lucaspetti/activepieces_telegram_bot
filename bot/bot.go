@@ -9,12 +9,18 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+// BotAPI defines the interface for sending messages, to allow mocking in tests.
+type BotAPI interface {
+	Send(c tgbotapi.Chattable) (tgbotapi.Message, error)
+}
+
+// TelegramBot uses a BotAPI interface instead of the concrete *tgbotapi.BotAPI
 type TelegramBot struct {
-	botApi     *tgbotapi.BotAPI
+	botApi     BotAPI
 	webhookURL string
 }
 
-func NewTelegramBot(botApi *tgbotapi.BotAPI, webhookURL string) *TelegramBot {
+func NewTelegramBot(botApi BotAPI, webhookURL string) *TelegramBot {
 	TelegramBot := &TelegramBot{
 		botApi:     botApi,
 		webhookURL: webhookURL,
