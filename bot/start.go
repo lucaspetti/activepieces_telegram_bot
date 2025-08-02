@@ -8,7 +8,7 @@ func Start(config Config) {
 		panic(err)
 	}
 
-	TelegramBot := NewTelegramBot(bot)
+	TelegramBot := NewTelegramBot(bot, config.webhookURL)
 	bot.Debug = true
 
 	// Create a new UpdateConfig struct with an offset of 0. Offsets are used

@@ -5,12 +5,14 @@ import (
 )
 
 type TelegramBot struct {
-	botApi *tgbotapi.BotAPI
+	botApi     *tgbotapi.BotAPI
+	webhookURL string
 }
 
-func NewTelegramBot(botApi *tgbotapi.BotAPI) *TelegramBot {
+func NewTelegramBot(botApi *tgbotapi.BotAPI, webhookURL string) *TelegramBot {
 	TelegramBot := &TelegramBot{
-		botApi: botApi,
+		botApi:     botApi,
+		webhookURL: webhookURL,
 	}
 
 	return TelegramBot
