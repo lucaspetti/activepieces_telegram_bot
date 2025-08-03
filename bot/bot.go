@@ -12,6 +12,7 @@ import (
 // BotAPI defines the interface for sending messages, to allow mocking in tests.
 type BotAPI interface {
 	Send(c tgbotapi.Chattable) (tgbotapi.Message, error)
+	GetFileDirectURL(fileID string) (string, error)
 }
 
 // TelegramBot uses a BotAPI interface instead of the concrete *tgbotapi.BotAPI
@@ -34,13 +35,33 @@ func (b TelegramBot) sendMessage(msg tgbotapi.MessageConfig) error {
 	return err
 }
 
-func (b TelegramBot) callWebhook(update tgbotapi.Update, message string) (result string, err error) {
-	client := &http.Client{}
+func (b TelegramBot) sendWebhookAudio(update tgbotapi.Update, fileID string) (result string, err error) {
+	chatId := strconv.Itoa(int(update.Message.Chat.ID))
+	directURL, err := b.botApi.GetFileDirectURL(fileID)
+	if err != nil {
+		return "", err
+	}
+
+	reqBody := map[string]string{
+		"audio_url": directURL,
+		"chat_id":   chatId,
+	}
+
+	return b.callWebhook(reqBody)
+}
+
+func (b TelegramBot) sendWebhookText(update tgbotapi.Update, message string) (result string, err error) {
 	chatId := strconv.Itoa(int(update.Message.Chat.ID))
 	reqBody := map[string]string{
 		"text":    message,
 		"chat_id": chatId,
 	}
+
+	return b.callWebhook(reqBody)
+}
+
+func (b TelegramBot) callWebhook(reqBody map[string]string) (result string, err error) {
+	client := &http.Client{}
 	jsonBody, err := json.Marshal(reqBody)
 	if err != nil {
 		return "", err
@@ -62,16 +83,22 @@ func (b TelegramBot) callWebhook(update tgbotapi.Update, message string) (result
 }
 
 func (b TelegramBot) handleMessage(update tgbotapi.Update) error {
-	message := update.Message.Text
-	userName := update.Message.From.FirstName
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-	// voiceMsg := update.Message.Voice
+	message := update.Message
 
-	switch message {
-	case "/start":
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+
+	if message.Text == "/start" {
+		userName := update.Message.From.FirstName
 		msg.Text = "Hello there, " + userName
-	default:
-		webhookResult, err := b.callWebhook(update, message)
+	} else if message.Voice != nil {
+		voiceFileID := update.Message.Voice.FileID
+		webhookResult, err := b.sendWebhookAudio(update, voiceFileID)
+		msg.Text = webhookResult
+		if err != nil {
+			msg.Text = "Error calling webhook"
+		}
+	} else {
+		webhookResult, err := b.sendWebhookText(update, message.Text)
 		msg.Text = webhookResult
 		if err != nil {
 			msg.Text = "Error calling webhook"

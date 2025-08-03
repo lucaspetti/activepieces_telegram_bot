@@ -18,6 +18,10 @@ func (m *mockBotAPI) Send(c tgbotapi.Chattable) (tgbotapi.Message, error) {
 	return tgbotapi.Message{}, nil
 }
 
+func (m *mockBotAPI) GetFileDirectURL(f string) (string, error) {
+	return "", nil
+}
+
 var ErrSimulatedSendMessage = errors.New("simulated error from sendMessage")
 
 func TestTelegramBot_sendMessage(t *testing.T) {
