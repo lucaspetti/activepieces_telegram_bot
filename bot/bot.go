@@ -1,30 +1,32 @@
 package bot
 
 import (
-	"bytes"
-	"encoding/json"
-	"net/http"
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-// BotAPI defines the interface for sending messages, to allow mocking in tests.
+// BotAPI defines the interface for sending messages to allow mocking in tests.
 type BotAPI interface {
 	Send(c tgbotapi.Chattable) (tgbotapi.Message, error)
 	GetFileDirectURL(fileID string) (string, error)
 }
 
-// TelegramBot uses a BotAPI interface instead of the concrete *tgbotapi.BotAPI
-type TelegramBot struct {
-	botApi     BotAPI
-	webhookURL string
+// WebhookClient defines the interface for calling the webhook to allow mocking in tests.
+type WebhookClient interface {
+	Post(body map[string]string) (string, error)
 }
 
-func NewTelegramBot(botApi BotAPI, webhookURL string) *TelegramBot {
+// TelegramBot uses a BotAPI interface instead of the concrete *tgbotapi.BotAPI
+type TelegramBot struct {
+	botApi        BotAPI
+	WebhookClient WebhookClient
+}
+
+func NewTelegramBot(botApi BotAPI, webhookClient WebhookClient) *TelegramBot {
 	TelegramBot := &TelegramBot{
-		botApi:     botApi,
-		webhookURL: webhookURL,
+		botApi:        botApi,
+		WebhookClient: webhookClient,
 	}
 
 	return TelegramBot
@@ -47,7 +49,7 @@ func (b TelegramBot) sendWebhookAudio(update tgbotapi.Update, fileID string) (re
 		"chat_id":   chatId,
 	}
 
-	return b.callWebhook(reqBody)
+	return b.WebhookClient.Post(reqBody)
 }
 
 func (b TelegramBot) sendWebhookText(update tgbotapi.Update, message string) (result string, err error) {
@@ -57,29 +59,7 @@ func (b TelegramBot) sendWebhookText(update tgbotapi.Update, message string) (re
 		"chat_id": chatId,
 	}
 
-	return b.callWebhook(reqBody)
-}
-
-func (b TelegramBot) callWebhook(reqBody map[string]string) (result string, err error) {
-	client := &http.Client{}
-	jsonBody, err := json.Marshal(reqBody)
-	if err != nil {
-		return "", err
-	}
-
-	req, err := http.NewRequest("POST", b.webhookURL, bytes.NewBuffer(jsonBody))
-	if err != nil {
-		return "", err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	return "Webhook called", nil
+	return b.WebhookClient.Post(reqBody)
 }
 
 func (b TelegramBot) handleMessage(update tgbotapi.Update) error {
