@@ -1,0 +1,9 @@
+services:
+  sample_bot:
+    image: lucaspetti/activepieces_telegram_bot:latest
+    restart: always
+    command: start
+    environment:
+      AUTHORIZED_USER_ID: ${AUTHORIZED_USER_ID}
+      WEBHOOK_URL: ${SAMPLE_BOT_WEBHOOK_URL}
+      TELEGRAM_BOT_TOKEN: ${SAMPLE_BOT_TELEGRAM_BOT_TOKEN}

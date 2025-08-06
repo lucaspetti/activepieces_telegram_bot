@@ -1,6 +1,10 @@
 package bot
 
-import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+import (
+	"activepieces_telegram_bot/webhook"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+)
 
 func Start(config Config) {
 	bot, err := tgbotapi.NewBotAPI(config.telegramApiToken)
@@ -8,7 +12,8 @@ func Start(config Config) {
 		panic(err)
 	}
 
-	TelegramBot := NewTelegramBot(bot, config.webhookURL)
+	webhookClient := webhook.NewWebhookClient(config.webhookURL)
+	TelegramBot := NewTelegramBot(bot, webhookClient)
 	bot.Debug = true
 
 	// Create a new UpdateConfig struct with an offset of 0. Offsets are used
