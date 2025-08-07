@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"activepieces_telegram_bot/bot"
-	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -17,7 +16,7 @@ var startCmd = &cobra.Command{
 	Short: "Starts the telegram bot",
 	Long:  `Starts the telegram bot with the necessary config`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("start called")
+		log.Println("Loading environment variables...")
 
 		authorizedUserID := os.Getenv("AUTHORIZED_USER_ID")
 		userID, err := strconv.ParseInt(authorizedUserID, 10, 64)
