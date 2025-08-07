@@ -4,6 +4,7 @@ import (
 	"activepieces_telegram_bot/bot"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"strconv"
 
@@ -32,6 +33,11 @@ var startCmd = &cobra.Command{
 		webhookURL := os.Getenv("WEBHOOK_URL")
 		if webhookURL == "" {
 			log.Fatal("WEBHOOK_URL env variable is required")
+		}
+
+		_, err = url.ParseRequestURI(webhookURL)
+		if err != nil {
+			log.Fatal("WEBHOOK_URL env is not a valid URL")
 		}
 
 		config := bot.NewConfig(
